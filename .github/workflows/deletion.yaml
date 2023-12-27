@@ -24,7 +24,7 @@ jobs:
         shell: bash
 
       - name: Add EC2 Host Key
-        run: ssh-keyscan -H -t rsa 13.233.247.32 >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H -t rsa 13.201.44.39 >> ~/.ssh/known_hosts
   
 
       - name: Run Ansible Playbook
