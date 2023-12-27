@@ -1,0 +1,38 @@
+# ---
+# - name: Uninstall Nginx
+#   hosts: all
+#   become: true
+ 
+#   tasks:
+#     - name: Uninstall Nginx
+#       apt:
+#         name: nginx
+#         state: absent
+
+---
+- name: Uninstall Nginx
+  hosts: all  # Replace with the host or group where Nginx is installed
+  become: true  # Run tasks with elevated privileges (sudo)
+
+  tasks:
+    - name: Stop Nginx service
+      service:
+        name: nginx
+        state: stopped
+
+    - name: Remove Nginx package
+      apt:
+        name: nginx
+        state: absent
+
+    - name: Remove Nginx configuration files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/nginx/nginx.conf
+        - /etc/nginx/sites-available/
+        - /etc/nginx/sites-enabled/
+
+    - name: Reload systemd
+      command: systemctl daemon-reload

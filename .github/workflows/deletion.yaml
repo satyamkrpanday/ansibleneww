@@ -1,0 +1,68 @@
+name: Undeploy Nginx on EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      Run it:
+        description: 'Wanna run'
+        required: true
+        
+jobs:
+  deploy-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install pip
+        run: python -m ensurepip --default-pip
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip
+          sudo pip3 install ansible
+
+      - name: Clear Known Hosts File
+        run: rm -f ~/.ssh/known_hosts
+        
+      - name: Set up SSH Key
+        run: |
+          mkdir -p /home/runner/.ssh/
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /home/runner/.ssh/id_rsa
+          chmod 400 /home/runner/.ssh/id_rsa
+        shell: bash
+
+      - name: Display SSH Key
+        run: cat ~/.ssh/id_rsa
+
+
+      - name: Add EC2 Host Key
+        run: ssh-keyscan -H -t rsa 13.233.247.32 >> ~/.ssh/known_hosts
+  
+      - name: Display SSH Key and Known Hosts
+        run: |
+          cat ~/.ssh/id_rsa
+          cat ~/.ssh/known_hosts
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i inventory.ini --private-key=/home/runner/.ssh/id_rsa -u ubuntu -b UninstallNginx.yaml
+
+    #      ansible-playbook -i /etc/ansible/hosts -e "ansible_ssh_private_key_file=/etc/ansible/hosts" -u ubuntu -b creationnginx.yaml
+        
+          
+      # - name: Run Ansible Playbook
+      #   uses: dawidd6/action-ansible-playbook@v2
+      #   with:
+      #     playbook: creationnginx.yaml
+      #     directory: ./
+      #     inventory: ./inventory.ini  # Update to your actual inventory file path
+      #     options: --user=ubuntu  # Specify the SSH user
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
