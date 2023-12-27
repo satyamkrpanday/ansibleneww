@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       Run it:
-        description: 'Wanna run'
+        description: 'Wanna Undeploy'
         required: true
         
 jobs:
@@ -15,22 +15,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install pip
-        run: python -m ensurepip --default-pip
-
-      - name: Install Ansible
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          sudo pip3 install ansible
-
-      - name: Clear Known Hosts File
-        run: rm -f ~/.ssh/known_hosts
         
       - name: Set up SSH Key
         run: |
@@ -39,17 +23,9 @@ jobs:
           chmod 400 /home/runner/.ssh/id_rsa
         shell: bash
 
-      - name: Display SSH Key
-        run: cat ~/.ssh/id_rsa
-
-
       - name: Add EC2 Host Key
         run: ssh-keyscan -H -t rsa 13.233.247.32 >> ~/.ssh/known_hosts
   
-      - name: Display SSH Key and Known Hosts
-        run: |
-          cat ~/.ssh/id_rsa
-          cat ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
         run: |
